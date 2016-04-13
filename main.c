@@ -3,15 +3,47 @@
 #include <pthread.h>
 #include "initial.h"
 #include "IF.h"
+#include "ID.h"
 
+static pthread_barrier_t barrier1_1, barrier1_2;
+static pthread_barrier_t barrier2_1, barrier2_2;
 
+void *thread2(void *input) {
+	pthread_exit(NULL);
+}
+
+void *thread1(void *input) {
+	IF();
+	pthread_barrier_wait(&barrier1_1);
+	IF_ID_READY();
+	pthread_barrier_wait(&barrier1_2);
+	ID();
+	pthread_barrier_wait(&barrier2_1);
+	ID_EX_READY();
+	pthread_barrier_wait(&barrier2_2);
+	
+	pthread_exit(NULL);
+}
 
 int main() {
 	openNLoadFiles();
     dealWithDImg();
     dealWithIImg();
 	// TODO: pipeline
-	ifout test = IF();
-	printf("%d\n%x\n", test.pc_plus_four, test.ins_reg);
+	pthread_barrier_init(&barrier1_1, NULL, 2);
+	pthread_barrier_init(&barrier1_2, NULL, 2);
+	pthread_barrier_init(&barrier2_1, NULL, 2);
+	pthread_barrier_init(&barrier2_2, NULL, 2);
+	
+	pthread_t t1;
+	pthread_create(&t1, NULL, thread1, NULL);
+	
+	pthread_barrier_wait(&barrier1_1);
+	pthread_barrier_wait(&barrier1_2);
+	pthread_barrier_wait(&barrier2_1);
+	pthread_barrier_wait(&barrier2_2);
+	printf("%d\n%x\n", IF_ID.pc_plus_four_out, IF_ID.ins_reg_out);
+	printf("%u\n%u\n", ID_EX.rt_out, ID_EX.rd_out);
+	printf("%u\n", ID_EX.extended_imme_out);
 	return 0;
 }
