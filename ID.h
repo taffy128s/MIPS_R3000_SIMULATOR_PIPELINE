@@ -1,5 +1,7 @@
 typedef struct {
-	unsigned ins_reg_in, ins_reg_out;
+	unsigned opcode_in, opcode_out;
+	unsigned funct_in, funct_out;
+	unsigned shamt_in, shamt_out;
 	
 	unsigned reg_dst_in, reg_dst_out;
 	unsigned alu_src_in, alu_src_out;

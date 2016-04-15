@@ -3,19 +3,26 @@
 #include "EX.h"
 #include "ID.h"
 
-static unsigned opcode, funct, shamt;
+static unsigned funct, shamt;
 static int intRight, intLeft, temp;
 
 void EX() {
-	opcode = ID_EX.ins_reg_out >> 26;
-	funct = ID_EX.ins_reg_out << 26 >> 26;
-	shamt = ID_EX.ins_reg_out << 21 >> 27;
+	EX_DM.opcode_in = ID_EX.opcode_out;
+	funct = ID_EX.funct_out;
+	shamt = ID_EX.shamt_out << 21 >> 27;
+	
+	EX_DM.mem_read_in = ID_EX.mem_read_out;
+	EX_DM.mem_write_in = ID_EX.mem_write_out;
+	EX_DM.mem_op_in = ID_EX.mem_op_out;
+	
+	EX_DM.reg_write_in = ID_EX.reg_write_out;
+	EX_DM.mem_to_reg_in = ID_EX.mem_to_reg_out;
 	
 	unsigned left = ID_EX.$rs_out;
 	unsigned right;
 	if (ID_EX.alu_src_out == 0) right = ID_EX.$rt_out;
 	else right = ID_EX.extended_imme_out;
-	switch (opcode) {
+	switch (EX_DM.opcode_in) {
 		case R:
 			switch (funct) {
 				case ADD:
@@ -116,6 +123,14 @@ void EX() {
 }
 
 void EX_DM_READY() {
+	EX_DM.mem_read_out = EX_DM.mem_read_in;
+	EX_DM.mem_write_out = EX_DM.mem_write_in;
+	EX_DM.mem_op_out = EX_DM.mem_op_out;
+	
+	EX_DM.reg_write_out = EX_DM.reg_write_in;
+	EX_DM.mem_to_reg_in = EX_DM.mem_to_reg_in;
+	
+	EX_DM.opcode_out = EX_DM.opcode_in;
 	EX_DM.$rt_out = EX_DM.$rt_in;
 	EX_DM.reg_to_write_out = EX_DM.reg_to_write_in;
 	EX_DM.alu_result_out = EX_DM.alu_result_in;
