@@ -1,3 +1,4 @@
+#define ERROR 0xffffffff
 #define $SP   29
 // R
 #define R      0
@@ -36,3 +37,9 @@
 #define J      2
 #define JAL    3
 #define HALT  63
+// NEW
+#define MEM_WORD 0
+#define MEM_HALF 1
+#define MEM_HALF_UNSIGN 2
+#define MEM_BYTE 3
+#define MEM_BYTE_UNSIGN 4
