@@ -12,4 +12,7 @@ void WB() {
 			reg[DM_WB.reg_to_write_out] = DM_WB.alu_result_out;
 		}
 	}
+	
+	if (DM_WB.opcode_out == HALT) WB_HALT = 1;
+	else WB_HALT = 0;
 }

@@ -41,6 +41,9 @@ void ID() {
 		ID_EX.pc_src_in = 1;
 		ID_EX.pc_in = ID_EX.$rs_in;
 	} else ID_EX.pc_src_in = 0;
+	
+	if (ID_EX.opcode_in == HALT) ID_HALT = 1;
+	else ID_HALT = 0;
 }
 
 void CONTROL() {

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "defines.h"
 #include "IF.h"
 #include "ID.h"
 
@@ -11,6 +12,9 @@ void IF() {
 	
 	if (ID_EX.pc_src_out == 1) PC = ID_EX.pc_out;
 	else PC = IF_ID.pc_plus_four_in;
+	
+	if (IF_ID.ins_reg_in >> 26 == HALT) IF_HALT = 1;
+	else IF_HALT = 0;
 }
 
 void IF_ID_READY() {

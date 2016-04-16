@@ -44,6 +44,9 @@ void DM() {
 			DM_WB.read_data_in = (unsigned char) dMemory[EX_DM.alu_result_out];
 		} else printf("Error at DM.c.\n");
 	} 
+	
+	if (DM_WB.opcode_in == HALT) DM_HALT = 1;
+	else DM_HALT = 0;
 }
 
 void DM_WB_READY() {

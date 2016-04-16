@@ -64,7 +64,8 @@ void EX() {
 					EX_DM.alu_result_in = right >> shamt;
 					break;
 				default:
-					printf("There's an error at EX.c.\n");
+					//printf("There's an error at EX.c.\n");
+					break;
 			}
 			break;
 		case ADDI:
@@ -114,12 +115,16 @@ void EX() {
 			EX_DM.alu_result_in = (intLeft < intRight) ? 1 : 0;
 			break;
 		default:
-			printf("There's an error at EX.c.\n");
+			//printf("There's an error at EX.c.\n");
+			break;
 	}
 	
 	EX_DM.$rt_in = ID_EX.$rt_out;
 	if (ID_EX.reg_dst_out == 0) EX_DM.reg_to_write_in = ID_EX.rt_out;
 	else EX_DM.reg_to_write_in = ID_EX.rd_out;
+	
+	if (EX_DM.opcode_in == HALT) EX_HALT = 1;
+	else EX_HALT = 0;
 }
 
 void EX_DM_READY() {
