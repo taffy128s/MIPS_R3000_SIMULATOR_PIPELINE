@@ -6,6 +6,12 @@
 void DM() {
 	int i;
 	DM_WB.opcode_in = EX_DM.opcode_out;
+	DM_WB.rd_in = EX_DM.rd_out;
+	DM_WB.rt_in = EX_DM.rt_out;
+	DM_WB.rs_in = EX_DM.rs_out;
+	DM_WB.shamt_in = EX_DM.shamt_out;
+	DM_WB.funct_in = EX_DM.funct_out;
+	
 	DM_WB.reg_write_in = EX_DM.reg_write_out;
 	DM_WB.mem_to_reg_in = EX_DM.mem_to_reg_out;
 	DM_WB.alu_result_in = EX_DM.alu_result_out;
@@ -43,7 +49,7 @@ void DM() {
 		} else if (EX_DM.mem_op_out == MEM_BYTE_UNSIGN) {
 			DM_WB.read_data_in = (unsigned char) dMemory[EX_DM.alu_result_out];
 		} else printf("Error at DM.c.\n");
-	} 
+	}
 	
 	if (DM_WB.opcode_in == HALT) DM_HALT = 1;
 	else DM_HALT = 0;
@@ -51,6 +57,12 @@ void DM() {
 
 void DM_WB_READY() {
 	DM_WB.opcode_out = DM_WB.opcode_in;
+	DM_WB.rd_out = DM_WB.rd_in;
+	DM_WB.rs_out = DM_WB.rs_in;
+	DM_WB.rt_out = DM_WB.rt_in;
+	DM_WB.funct_out = DM_WB.funct_in;
+	DM_WB.shamt_out = DM_WB.shamt_out;
+	
 	DM_WB.reg_write_out = DM_WB.reg_write_in;
 	DM_WB.mem_to_reg_out = DM_WB.mem_to_reg_in;
 	DM_WB.alu_result_out = DM_WB.alu_result_in;

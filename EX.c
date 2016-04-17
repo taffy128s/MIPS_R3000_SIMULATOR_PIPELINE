@@ -3,13 +3,15 @@
 #include "EX.h"
 #include "ID.h"
 
-static unsigned funct, shamt;
 static int intRight, intLeft, temp;
 
 void EX() {
 	EX_DM.opcode_in = ID_EX.opcode_out;
-	funct = ID_EX.funct_out;
-	shamt = ID_EX.shamt_out << 21 >> 27;
+	EX_DM.rd_in = ID_EX.rd_out;
+	EX_DM.rt_in = ID_EX.rt_out;
+	EX_DM.rs_in = ID_EX.rs_out;
+	EX_DM.funct_in = ID_EX.funct_out;
+	EX_DM.shamt_in = ID_EX.shamt_out;
 	
 	EX_DM.mem_read_in = ID_EX.mem_read_out;
 	EX_DM.mem_write_in = ID_EX.mem_write_out;
@@ -24,7 +26,7 @@ void EX() {
 	else right = ID_EX.extended_imme_out;
 	switch (EX_DM.opcode_in) {
 		case R:
-			switch (funct) {
+			switch (EX_DM.funct_in) {
 				case ADD:
 					EX_DM.alu_result_in = left + right;
 					break;
@@ -54,14 +56,14 @@ void EX() {
 					EX_DM.alu_result_in = (intLeft < intRight) ? 1 : 0;
 					break;
 				case SLL:
-					EX_DM.alu_result_in = right << shamt;
+					EX_DM.alu_result_in = right << EX_DM.shamt_in;
 					break;
 				case SRL:
-					EX_DM.alu_result_in = right >> shamt;
+					EX_DM.alu_result_in = right >> EX_DM.shamt_in;
 					break;
 				case SRA:
 					temp = right;
-					EX_DM.alu_result_in = right >> shamt;
+					EX_DM.alu_result_in = right >> EX_DM.shamt_in;
 					break;
 				default:
 					//printf("There's an error at EX.c.\n");
@@ -131,9 +133,14 @@ void EX_DM_READY() {
 	EX_DM.mem_read_out = EX_DM.mem_read_in;
 	EX_DM.mem_write_out = EX_DM.mem_write_in;
 	EX_DM.mem_op_out = EX_DM.mem_op_out;
+	EX_DM.rd_out = EX_DM.rd_in;
+	EX_DM.rs_out = EX_DM.rs_in;
+	EX_DM.rt_out = EX_DM.rt_in;
+	EX_DM.shamt_out = EX_DM.shamt_in;
+	EX_DM.funct_out = EX_DM.funct_in;
 	
 	EX_DM.reg_write_out = EX_DM.reg_write_in;
-	EX_DM.mem_to_reg_in = EX_DM.mem_to_reg_in;
+	EX_DM.mem_to_reg_out = EX_DM.mem_to_reg_in;
 	
 	EX_DM.opcode_out = EX_DM.opcode_in;
 	EX_DM.$rt_out = EX_DM.$rt_in;

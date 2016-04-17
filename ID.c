@@ -17,6 +17,7 @@ void ID() {
 	ID_EX.extended_imme_in = temp;
 	ID_EX.rt_in = IF_ID.ins_reg_out << 11 >> 27;
 	ID_EX.rd_in = IF_ID.ins_reg_out << 16 >> 27;
+	ID_EX.rs_in = IF_ID.ins_reg_out << 6 >> 27;
 	
 	if (ID_EX.opcode_in == BEQ) {
 		if (ID_EX.$rs_in == ID_EX.$rt_in) {
@@ -101,6 +102,7 @@ void ID_EX_READY() {
 	ID_EX.extended_imme_out = ID_EX.extended_imme_in;
 	ID_EX.rt_out = ID_EX.rt_in;
 	ID_EX.rd_out = ID_EX.rd_in;
+	ID_EX.rs_out = ID_EX.rs_in;
 	
 	ID_EX.pc_src_out = ID_EX.pc_src_in;
 	ID_EX.pc_out = ID_EX.pc_in;

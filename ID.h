@@ -19,6 +19,7 @@ typedef struct {
 	unsigned extended_imme_in, extended_imme_out;
 	unsigned rt_in, rt_out;
 	unsigned rd_in, rd_out;
+	unsigned rs_in, rs_out;
 	
 	unsigned pc_src_in, pc_src_out;
 	unsigned pc_in, pc_out;

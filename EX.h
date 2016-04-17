@@ -1,5 +1,10 @@
 typedef struct {
 	unsigned opcode_in, opcode_out;
+	unsigned rd_in, rd_out;
+	unsigned rs_in, rs_out;
+	unsigned rt_in, rt_out;
+	unsigned funct_in, funct_out;
+	unsigned shamt_in, shamt_out;
 	
 	unsigned mem_read_in, mem_read_out;
 	unsigned mem_write_in, mem_write_out;
