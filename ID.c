@@ -2,22 +2,24 @@
 #include "global.h"
 #include "IF.h"
 #include "ID.h"
+#include "EX.h"
 
 void ID() {
-	ID_EX.opcode_in = IF_ID.ins_reg_out >> 26;
-	ID_EX.funct_in = IF_ID.ins_reg_out << 26 >> 26;
+	ID_EX.opcode_in = IF_ID.opcode_out;
+	ID_EX.funct_in = IF_ID.funct_out;
 	ID_EX.shamt_in = IF_ID.ins_reg_out << 21 >> 27;
+	ID_EX.rs_in = IF_ID.rs_out;
+	ID_EX.rt_in = IF_ID.rt_out;
+	ID_EX.rd_in = IF_ID.ins_reg_out << 16 >> 27;
 	
 	CONTROL();
 	
-	ID_EX.$rs_in = reg[IF_ID.ins_reg_out << 6 >> 27];
-	ID_EX.$rt_in = reg[IF_ID.ins_reg_out << 11 >> 27];
-	
+	if (FWD_RS_TO_ID) ID_EX.$rs_in = reg[EX_DM.rs_out];
+	else ID_EX.$rs_in = reg[ID_EX.rs_in];
+	if (FWD_RT_TO_ID) ID_EX.$rt_in = reg[EX_DM.rt_out];
+	else ID_EX.$rt_in = reg[ID_EX.rt_in];
 	short temp = IF_ID.ins_reg_out << 16 >> 16;
 	ID_EX.extended_imme_in = temp;
-	ID_EX.rt_in = IF_ID.ins_reg_out << 11 >> 27;
-	ID_EX.rd_in = IF_ID.ins_reg_out << 16 >> 27;
-	ID_EX.rs_in = IF_ID.ins_reg_out << 6 >> 27;
 	
 	if (ID_EX.opcode_in == BEQ) {
 		if (ID_EX.$rs_in == ID_EX.$rt_in) {
@@ -37,8 +39,8 @@ void ID() {
 		} else ID_EX.pc_src_in = 0;
 	} else if (ID_EX.opcode_in == J || ID_EX.opcode_in == JAL) {
 		ID_EX.pc_src_in = 1;
-		ID_EX.pc_in = (IF_ID.pc_plus_four_out << 28 >> 28) | (ID_EX.extended_imme_in << 6 >> 6);
-	} else if (ID_EX.opcode_in == JR) {
+		ID_EX.pc_in = (IF_ID.pc_plus_four_out << 28 >> 28) | (ID_EX.extended_imme_in << 6 >> 4);
+	} else if (ID_EX.opcode_in == R && ID_EX.funct_in == JR) {
 		ID_EX.pc_src_in = 1;
 		ID_EX.pc_in = ID_EX.$rs_in;
 	} else ID_EX.pc_src_in = 0;
@@ -85,6 +87,9 @@ void ID_EX_READY() {
 	ID_EX.opcode_out = ID_EX.opcode_in;
 	ID_EX.funct_out = ID_EX.funct_in;
 	ID_EX.shamt_out = ID_EX.shamt_in;
+	ID_EX.rt_out = ID_EX.rt_in;
+	ID_EX.rd_out = ID_EX.rd_in;
+	ID_EX.rs_out = ID_EX.rs_in;
 	
 	ID_EX.reg_dst_out = ID_EX.reg_dst_in;
 	ID_EX.alu_src_out = ID_EX.alu_src_in;
@@ -98,11 +103,7 @@ void ID_EX_READY() {
 	
 	ID_EX.$rs_out = ID_EX.$rs_in;
 	ID_EX.$rt_out = ID_EX.$rt_in;
-	
 	ID_EX.extended_imme_out = ID_EX.extended_imme_in;
-	ID_EX.rt_out = ID_EX.rt_in;
-	ID_EX.rd_out = ID_EX.rd_in;
-	ID_EX.rs_out = ID_EX.rs_in;
 	
 	ID_EX.pc_src_out = ID_EX.pc_src_in;
 	ID_EX.pc_out = ID_EX.pc_in;

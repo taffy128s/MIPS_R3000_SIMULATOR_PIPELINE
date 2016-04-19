@@ -8,8 +8,10 @@ static int intRight, intLeft, temp;
 void EX() {
 	EX_DM.opcode_in = ID_EX.opcode_out;
 	EX_DM.rd_in = ID_EX.rd_out;
-	EX_DM.rt_in = ID_EX.rt_out;
-	EX_DM.rs_in = ID_EX.rs_out;
+	if (FWD_RT_TO_EX) EX_DM.rt_in = EX_DM.rt_out;
+	else EX_DM.rt_in = ID_EX.rt_out;
+	if (FWD_RS_TO_EX) EX_DM.rs_in = EX_DM.rs_out;
+	else EX_DM.rs_in = ID_EX.rs_out;
 	EX_DM.funct_in = ID_EX.funct_out;
 	EX_DM.shamt_in = ID_EX.shamt_out;
 	
@@ -123,7 +125,9 @@ void EX() {
 	
 	EX_DM.$rt_in = ID_EX.$rt_out;
 	if (ID_EX.reg_dst_out == 0) EX_DM.reg_to_write_in = ID_EX.rt_out;
-	else EX_DM.reg_to_write_in = ID_EX.rd_out;
+	else if (ID_EX.reg_dst_out == 1) EX_DM.reg_to_write_in = ID_EX.rd_out;
+	else if (ID_EX.reg_dst_out == 1) EX_DM.reg_to_write_in = 31;
+	else printf("There's an error at EX.c.\n");
 	
 	if (EX_DM.opcode_in == HALT) EX_HALT = 1;
 	else EX_HALT = 0;
@@ -132,7 +136,7 @@ void EX() {
 void EX_DM_READY() {
 	EX_DM.mem_read_out = EX_DM.mem_read_in;
 	EX_DM.mem_write_out = EX_DM.mem_write_in;
-	EX_DM.mem_op_out = EX_DM.mem_op_out;
+	EX_DM.mem_op_out = EX_DM.mem_op_in;
 	EX_DM.rd_out = EX_DM.rd_in;
 	EX_DM.rs_out = EX_DM.rs_in;
 	EX_DM.rt_out = EX_DM.rt_in;

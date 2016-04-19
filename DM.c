@@ -14,6 +14,7 @@ void DM() {
 	
 	DM_WB.reg_write_in = EX_DM.reg_write_out;
 	DM_WB.mem_to_reg_in = EX_DM.mem_to_reg_out;
+	
 	DM_WB.alu_result_in = EX_DM.alu_result_out;
 	DM_WB.reg_to_write_in = EX_DM.reg_to_write_out;
 	
@@ -61,7 +62,7 @@ void DM_WB_READY() {
 	DM_WB.rs_out = DM_WB.rs_in;
 	DM_WB.rt_out = DM_WB.rt_in;
 	DM_WB.funct_out = DM_WB.funct_in;
-	DM_WB.shamt_out = DM_WB.shamt_out;
+	DM_WB.shamt_out = DM_WB.shamt_in;
 	
 	DM_WB.reg_write_out = DM_WB.reg_write_in;
 	DM_WB.mem_to_reg_out = DM_WB.mem_to_reg_in;
