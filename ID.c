@@ -4,6 +4,8 @@
 #include "ID.h"
 #include "EX.h"
 
+static unsigned address;
+
 void ID() {
 	if (STALL) return;
 	if (ID_EX.pc_src_out) {
@@ -39,6 +41,7 @@ void ID() {
 	ID_EX.rs_in = IF_ID.rs_out;
 	ID_EX.rt_in = IF_ID.rt_out;
 	ID_EX.rd_in = IF_ID.ins_reg_out << 16 >> 27;
+	address = IF_ID.ins_reg_out << 6 >> 6;
 	
 	CONTROL();
 	
@@ -72,7 +75,7 @@ void ID() {
 		} else ID_EX.pc_src_in = 0;
 	} else if (ID_EX.opcode_in == J || ID_EX.opcode_in == JAL) {
 		ID_EX.pc_src_in = 1;
-		ID_EX.pc_in = (IF_ID.pc_plus_four_out << 28 >> 28) | (ID_EX.extended_imme_in << 6 >> 4); //error
+		ID_EX.pc_in = (IF_ID.pc_plus_four_out << 28 >> 28) | (address << 6 >> 4); //error
 	} else if (ID_EX.opcode_in == R && ID_EX.funct_in == JR) {
 		ID_EX.pc_src_in = 1;
 		ID_EX.pc_in = ID_EX.$rs_in;

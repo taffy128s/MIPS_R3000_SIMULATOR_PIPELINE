@@ -6,7 +6,6 @@ typedef struct {
 	unsigned funct_in, funct_out;
 	unsigned rs_in, rs_out;
 	unsigned rt_in, rt_out;
-	unsigned $rs, $rt;
 } IF_STAGE; 
 
 extern IF_STAGE IF_ID;

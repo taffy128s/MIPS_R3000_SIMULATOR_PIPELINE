@@ -70,7 +70,6 @@ void EX() {
 					EX_DM.alu_result_in = right >> EX_DM.shamt_in;
 					break;
 				default:
-					//printf("There's an error at EX.c.\n");
 					break;
 			}
 			break;
@@ -121,7 +120,6 @@ void EX() {
 			EX_DM.alu_result_in = (intLeft < intRight) ? 1 : 0;
 			break;
 		default:
-			//printf("There's an error at EX.c.\n");
 			break;
 	}
 	
