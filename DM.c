@@ -23,31 +23,77 @@ void DM() {
 	
 	if (EX_DM.mem_write_out == 1) {
 		if (EX_DM.mem_op_out == MEM_WORD) {
-			dMemory[EX_DM.alu_result_out] = EX_DM.$rt_out >> 24;
-			dMemory[EX_DM.alu_result_out + 1] = EX_DM.$rt_out << 8 >> 24;
-			dMemory[EX_DM.alu_result_out + 2] = EX_DM.$rt_out << 16 >> 24;
-			dMemory[EX_DM.alu_result_out + 3] = EX_DM.$rt_out << 24 >> 24;
+			if (EX_DM.alu_result_out >= 1024 || EX_DM.alu_result_out + 3 >= 1024) {
+				mem_overflow = 1;
+			}
+			if (EX_DM.alu_result_out % 4) {
+				mem_misalign = 1;
+			}
+			if (mem_overflow || mem_misalign) return;
+			dMemory[EX_DM.alu_result_out] = EX_DM.write_data_out >> 24;
+			dMemory[EX_DM.alu_result_out + 1] = EX_DM.write_data_out << 8 >> 24;
+			dMemory[EX_DM.alu_result_out + 2] = EX_DM.write_data_out << 16 >> 24;
+			dMemory[EX_DM.alu_result_out + 3] = EX_DM.write_data_out << 24 >> 24;
 		} else if (EX_DM.mem_op_out == MEM_HALF) {
-			dMemory[EX_DM.alu_result_out] = EX_DM.$rt_out << 16 >> 24;
-			dMemory[EX_DM.alu_result_out + 1] = EX_DM.$rt_out << 24 >> 24;
+			if (EX_DM.alu_result_out >= 1024 || EX_DM.alu_result_out + 1 >= 1024) {
+				mem_overflow = 1;
+			}
+			if (EX_DM.alu_result_out % 2) {
+				mem_misalign = 1;
+			}
+			if (mem_overflow || mem_misalign) return;
+			dMemory[EX_DM.alu_result_out] = EX_DM.write_data_out << 16 >> 24;
+			dMemory[EX_DM.alu_result_out + 1] = EX_DM.write_data_out << 24 >> 24;
 		} else if (EX_DM.mem_op_out == MEM_BYTE) {
-			dMemory[EX_DM.alu_result_out] = EX_DM.$rt_out << 24 >> 24;
+			if (EX_DM.alu_result_out >= 1024) {
+				mem_overflow = 1;
+			}
+			if (mem_overflow || mem_misalign) return;
+			dMemory[EX_DM.alu_result_out] = EX_DM.write_data_out << 24 >> 24;
 		} else printf("Error at DM.c.\n");
 	}
 	
 	if (EX_DM.mem_read_out == 1) {
 		if (EX_DM.mem_op_out == MEM_WORD) {
+			if (EX_DM.alu_result_out >= 1024 || EX_DM.alu_result_out + 3 >= 1024) {
+				mem_overflow = 1;
+			}
+			if (EX_DM.alu_result_out % 4) {
+				mem_misalign = 1;
+			}
+			if (mem_overflow || mem_misalign) return;
 			for (i = 0; i < 4; i++) 
 				DM_WB.read_data_in = (DM_WB.read_data_in << 8) | (unsigned char) dMemory[EX_DM.alu_result_out + i];
 		} else if (EX_DM.mem_op_out == MEM_HALF) {
+			if (EX_DM.alu_result_out >= 1024 || EX_DM.alu_result_out + 1 >= 1024) {
+				mem_overflow = 1;
+			}
+			if (EX_DM.alu_result_out % 2) {
+				mem_misalign = 1;
+			}
+			if (mem_overflow || mem_misalign) return;
 			DM_WB.read_data_in = dMemory[EX_DM.alu_result_out];
 			DM_WB.read_data_in = (DM_WB.read_data_in << 8) | (unsigned char) dMemory[EX_DM.alu_result_out + 1];
 		} else if (EX_DM.mem_op_out == MEM_HALF_UNSIGN) {
+			if (EX_DM.alu_result_out >= 1024 || EX_DM.alu_result_out + 1 >= 1024) {
+				mem_overflow = 1;
+			}
+			if (EX_DM.alu_result_out % 2) {
+				mem_misalign = 1;
+			}
+			if (mem_overflow || mem_misalign) return;
 			DM_WB.read_data_in = (unsigned char) dMemory[EX_DM.alu_result_out];
 			DM_WB.read_data_in = (DM_WB.read_data_in << 8) | (unsigned char) dMemory[EX_DM.alu_result_out + 1];
 		} else if (EX_DM.mem_op_out == MEM_BYTE) {
+			if (EX_DM.alu_result_out >= 1024) {
+				mem_overflow = 1;
+			}
 			DM_WB.read_data_in = dMemory[EX_DM.alu_result_out];
 		} else if (EX_DM.mem_op_out == MEM_BYTE_UNSIGN) {
+			if (EX_DM.alu_result_out >= 1024) {
+				mem_overflow = 1;
+			}
+			if (mem_overflow || mem_misalign) return;
 			DM_WB.read_data_in = (unsigned char) dMemory[EX_DM.alu_result_out];
 		} else printf("Error at DM.c.\n");
 	}

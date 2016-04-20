@@ -1,6 +1,7 @@
 #include "defines.h"
 #include "global.h"
 #include "initial.h"
+#include "IF.h"
 
 void openNLoadFiles() {
     // Open the files.
@@ -56,7 +57,8 @@ void dealWithIImg() {
     // Get the value of PC.
     for (i = 0; i < 4; i++)
         temp = (temp << 8) + (unsigned char) iImgBuffer[i];
-    PC = temp;
+    IF_ID.pc_plus_four_out = temp;
+	PC = temp;
     // Get the number for I memory.
     temp = 0;
     for (i = 4; i < 8; i++)

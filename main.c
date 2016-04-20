@@ -30,9 +30,6 @@ void checkStall() {
 	} else if (IF_ID.opcode_out != R && IF_ID.opcode_out != LUI && IF_ID.opcode_out != BEQ && IF_ID.opcode_out != BNE && IF_ID.opcode_out != BGTZ
 	&& IF_ID.opcode_out != J && IF_ID.opcode_out != JAL && IF_ID.opcode_out != HALT) {
 		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
-		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
-	} else if (IF_ID.opcode_out == LUI) {
-		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
 	}
 	
 	if (IF_ID.opcode_out == BEQ || IF_ID.opcode_out == BNE) {
@@ -44,8 +41,36 @@ void checkStall() {
 		if (ID_EX.reg_write_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
 	}
 	
-	if (ID_EX.mem_read_out && (ID_EX.rt_out == IF_ID.rs_out || ID_EX.rt_out == IF_ID.rt_out)) STALL = 1;
-	if (EX_DM.mem_read_out && (EX_DM.rt_out == IF_ID.rs_out || EX_DM.rt_out == IF_ID.rt_out)) STALL = 1;
+	if (IF_ID.opcode_out == R && IF_ID.funct_out != SLL && IF_ID.funct_out != SRL && IF_ID.funct_out != SRA && IF_ID.funct_out != JR) {
+		if (ID_EX.mem_read_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+		if (ID_EX.mem_read_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
+	} else if (IF_ID.opcode_out == R && (IF_ID.funct_out == SLL || IF_ID.funct_out == SRL || IF_ID.funct_out == SRA)) {
+		if (ID_EX.mem_read_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
+	} else if (IF_ID.opcode_out != R && IF_ID.opcode_out != LUI && IF_ID.opcode_out != BEQ && IF_ID.opcode_out != BNE && IF_ID.opcode_out != BGTZ
+	&& IF_ID.opcode_out != J && IF_ID.opcode_out != JAL && IF_ID.opcode_out != HALT) {
+		if (ID_EX.mem_read_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+	} else if (IF_ID.opcode_out == BNE || IF_ID.opcode_out == BEQ) {
+		if (ID_EX.mem_read_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+		if (ID_EX.mem_read_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
+	} else if (IF_ID.opcode_out == BGTZ) {
+		if (ID_EX.mem_read_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+	}
+	
+	if (IF_ID.opcode_out == R && IF_ID.funct_out != SLL && IF_ID.funct_out != SRL && IF_ID.funct_out != SRA && IF_ID.funct_out != JR) {
+		if (EX_DM.mem_read_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+		if (EX_DM.mem_read_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
+	} else if (IF_ID.opcode_out == R && (IF_ID.funct_out == SLL || IF_ID.funct_out == SRL || IF_ID.funct_out == SRA)) {
+		if (EX_DM.mem_read_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
+	} else if (IF_ID.opcode_out != R && IF_ID.opcode_out != LUI && IF_ID.opcode_out != BEQ && IF_ID.opcode_out != BNE && IF_ID.opcode_out != BGTZ
+	&& IF_ID.opcode_out != J && IF_ID.opcode_out != JAL && IF_ID.opcode_out != HALT) {
+		if (EX_DM.mem_read_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+	} else if (IF_ID.opcode_out == BNE || IF_ID.opcode_out == BEQ) {
+		if (EX_DM.mem_read_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+		if (EX_DM.mem_read_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
+	} else if (IF_ID.opcode_out == BGTZ) {
+		if (EX_DM.mem_read_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+	}
+	
 }
 
 void checkFwdToId() {
@@ -70,10 +95,10 @@ void checkFwdToEx() {
 	} else if (ID_EX.opcode_out == R && (ID_EX.funct_out == SLL || ID_EX.funct_out == SRL || ID_EX.funct_out == SRA)) {
 		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
 	} else if (ID_EX.opcode_out != R && ID_EX.opcode_out != LUI && ID_EX.opcode_out != BEQ && ID_EX.opcode_out != BNE && ID_EX.opcode_out != BGTZ
-	&& ID_EX.opcode_out != J && ID_EX.opcode_out != JAL && ID_EX.opcode_out != HALT) {
+	&& ID_EX.opcode_out != J && ID_EX.opcode_out != JAL && ID_EX.opcode_out != HALT && ID_EX.opcode_out != SW && ID_EX.opcode_out != SH && ID_EX.opcode_out != SB) {
 		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rs_out)) FWD_RS_TO_EX = 1;
-		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
-	} else if (ID_EX.opcode_out == LUI) {
+	} else if (ID_EX.opcode_out == SW || ID_EX.opcode_out == SH || ID_EX.opcode_out == SB) {
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rs_out)) FWD_RS_TO_EX = 1;
 		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
 	}
 }
@@ -240,8 +265,28 @@ void dumpSnap2() {
 	fprintf(snap, "\n\n\n");
 }
 
+void printError() {
+	if (write_to_zero) {
+		write_to_zero = 0;
+		fprintf(err, "In cycle %d: Write $0 Error\n", cycle);
+	}
+	
+	if (mem_overflow) {
+		fprintf(err, "In cycle %d: Address Overflow\n", cycle);
+	}
+	
+	if (mem_misalign) {
+		fprintf(err, "In cycle %d: Misalignment Error\n", cycle);
+	}
+	
+	if (num_overflow) {
+		num_overflow = 0;
+		fprintf(err, "In cycle %d: Number Overflow\n", cycle);
+	}
+}
+
 int detectHalt() {
-	if (IF_HALT && ID_HALT && EX_HALT && DM_HALT && WB_HALT) return 1;
+	if ((IF_HALT && ID_HALT && EX_HALT && DM_HALT && WB_HALT) || (mem_overflow || mem_misalign)) return 1;
 	else return 0;
 }
 
@@ -495,6 +540,7 @@ void *thread1(void *input) {
 		IF();
 		pthread_barrier_wait(&barrier1_1);
 		dumpSnap2();
+		printError();
 		pthread_barrier_wait(&barrier_PRINT);
 		if (detectHalt()) {
 			pthread_barrier_wait(&barrier_RETURN);
@@ -512,6 +558,7 @@ void *thread1(void *input) {
 		ID();
 		pthread_barrier_wait(&barrier2_1);
 		dumpSnap2();
+		printError();
 		pthread_barrier_wait(&barrier_PRINT);
 		if (detectHalt()) {
 			pthread_barrier_wait(&barrier_RETURN);
@@ -528,6 +575,7 @@ void *thread1(void *input) {
 		EX();
 		pthread_barrier_wait(&barrier3_1);
 		dumpSnap2();
+		printError();
 		pthread_barrier_wait(&barrier_PRINT);
 		if (detectHalt()) {
 			pthread_barrier_wait(&barrier_RETURN);
@@ -544,6 +592,7 @@ void *thread1(void *input) {
 		DM();
 		pthread_barrier_wait(&barrier4_1);
 		dumpSnap2();
+		printError();
 		pthread_barrier_wait(&barrier_PRINT);
 		if (detectHalt()) {
 			pthread_barrier_wait(&barrier_RETURN);
@@ -561,6 +610,7 @@ void *thread1(void *input) {
 		pthread_barrier_wait(&barrier_ID_WB);
 		pthread_barrier_wait(&barrier5_1);
 		dumpSnap2();
+		printError();
 		pthread_barrier_wait(&barrier_PRINT);
 		if (detectHalt()) {
 			pthread_barrier_wait(&barrier_RETURN);

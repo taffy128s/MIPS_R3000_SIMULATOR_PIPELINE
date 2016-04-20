@@ -1,4 +1,5 @@
 typedef struct {
+	unsigned pc_plus_four_in, pc_plus_four_out;
 	unsigned opcode_in, opcode_out;
 	unsigned funct_in, funct_out;
 	unsigned shamt_in, shamt_out;

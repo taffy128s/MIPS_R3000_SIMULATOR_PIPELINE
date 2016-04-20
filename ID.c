@@ -9,6 +9,7 @@ static unsigned address;
 void ID() {
 	if (STALL) return;
 	if (ID_EX.pc_src_out) {
+		ID_EX.pc_plus_four_in = 0;
 		ID_EX.opcode_in = 0;
 		ID_EX.funct_in = 0;
 		ID_EX.shamt_in = 0;
@@ -35,6 +36,7 @@ void ID() {
 		ID_EX.reg_to_write_in = 0;
 		return;
 	}
+	ID_EX.pc_plus_four_in = IF_ID.pc_plus_four_out;
 	ID_EX.opcode_in = IF_ID.opcode_out;
 	ID_EX.funct_in = IF_ID.funct_out;
 	ID_EX.shamt_in = IF_ID.ins_reg_out << 21 >> 27;
@@ -45,9 +47,9 @@ void ID() {
 	
 	CONTROL();
 	
-	if (FWD_RS_TO_ID) ID_EX.$rs_in = reg[EX_DM.rs_out];
+	if (FWD_RS_TO_ID) ID_EX.$rs_in = EX_DM.alu_result_out;
 	else ID_EX.$rs_in = reg[ID_EX.rs_in];
-	if (FWD_RT_TO_ID) ID_EX.$rt_in = reg[EX_DM.rt_out];
+	if (FWD_RT_TO_ID) ID_EX.$rt_in = EX_DM.alu_result_out;
 	else ID_EX.$rt_in = reg[ID_EX.rt_in];
 	short temp = IF_ID.ins_reg_out << 16 >> 16;
 	ID_EX.extended_imme_in = temp;
@@ -75,7 +77,7 @@ void ID() {
 		} else ID_EX.pc_src_in = 0;
 	} else if (ID_EX.opcode_in == J || ID_EX.opcode_in == JAL) {
 		ID_EX.pc_src_in = 1;
-		ID_EX.pc_in = (IF_ID.pc_plus_four_out << 28 >> 28) | (address << 6 >> 4); //error
+		ID_EX.pc_in = (IF_ID.pc_plus_four_out >> 28 << 28) | (address << 2);
 	} else if (ID_EX.opcode_in == R && ID_EX.funct_in == JR) {
 		ID_EX.pc_src_in = 1;
 		ID_EX.pc_in = ID_EX.$rs_in;
@@ -121,6 +123,7 @@ void CONTROL() {
 
 void ID_EX_READY() {
 	if (STALL) {
+		ID_EX.pc_plus_four_out = 0;
 		ID_EX.opcode_out = 0;
 		ID_EX.funct_out = 0;
 		ID_EX.shamt_out = 0;
@@ -146,6 +149,7 @@ void ID_EX_READY() {
 		ID_EX.pc_out = 0;
 		ID_EX.reg_to_write_out = 0;
 	} else {
+		ID_EX.pc_plus_four_out = ID_EX.pc_plus_four_in;
 		ID_EX.opcode_out = ID_EX.opcode_in;
 		ID_EX.funct_out = ID_EX.funct_in;
 		ID_EX.shamt_out = ID_EX.shamt_in;

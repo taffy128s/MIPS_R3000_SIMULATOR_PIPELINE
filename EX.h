@@ -12,8 +12,10 @@ typedef struct {
 	
 	unsigned reg_write_in, reg_write_out;
 	unsigned mem_to_reg_in, mem_to_reg_out;
+	unsigned write_data_in, write_data_out;
 
 	unsigned alu_result_in, alu_result_out;
+	unsigned $rs_in, $rs_out;
 	unsigned $rt_in, $rt_out;
 	unsigned reg_to_write_in, reg_to_write_out;
 } EX_STAGE;
