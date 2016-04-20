@@ -22,6 +22,7 @@ typedef struct {
 	
 	unsigned pc_src_in, pc_src_out;
 	unsigned pc_in, pc_out;
+	unsigned reg_to_write_in, reg_to_write_out;
 } ID_STAGE;
 
 extern ID_STAGE ID_EX;

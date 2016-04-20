@@ -8,10 +8,8 @@ static int intRight, intLeft, temp;
 void EX() {
 	EX_DM.opcode_in = ID_EX.opcode_out;
 	EX_DM.rd_in = ID_EX.rd_out;
-	if (FWD_RT_TO_EX) EX_DM.rt_in = EX_DM.rt_out;
-	else EX_DM.rt_in = ID_EX.rt_out;
-	if (FWD_RS_TO_EX) EX_DM.rs_in = EX_DM.rs_out;
-	else EX_DM.rs_in = ID_EX.rs_out;
+	EX_DM.rt_in = ID_EX.rt_out;
+	EX_DM.rs_in = ID_EX.rs_out;
 	EX_DM.funct_in = ID_EX.funct_out;
 	EX_DM.shamt_in = ID_EX.shamt_out;
 	
@@ -22,10 +20,14 @@ void EX() {
 	EX_DM.reg_write_in = ID_EX.reg_write_out;
 	EX_DM.mem_to_reg_in = ID_EX.mem_to_reg_out;
 	
-	unsigned left = ID_EX.$rs_out;
+	unsigned left;
+	if (FWD_RS_TO_EX) left = EX_DM.alu_result_out;
+	else left = ID_EX.$rs_out;
 	unsigned right;
-	if (ID_EX.alu_src_out == 0) right = ID_EX.$rt_out;
-	else right = ID_EX.extended_imme_out;
+	if (ID_EX.alu_src_out == 0) {
+		if (FWD_RT_TO_EX) right = EX_DM.alu_result_out;
+		else right = ID_EX.$rt_out;
+	} else right = ID_EX.extended_imme_out;
 	switch (EX_DM.opcode_in) {
 		case R:
 			switch (EX_DM.funct_in) {
@@ -106,13 +108,13 @@ void EX() {
 			EX_DM.alu_result_in = right << 16;
 			break;
 		case ANDI:
-			EX_DM.alu_result_in = left & right;
+			EX_DM.alu_result_in = left & (unsigned short) right;
 			break;
 		case ORI:
-			EX_DM.alu_result_in = left | right;
+			EX_DM.alu_result_in = left | (unsigned short) right;
 			break;
 		case NORI:
-			EX_DM.alu_result_in = ~(left | right);
+			EX_DM.alu_result_in = ~(left | (unsigned short) right);
 			break;
 		case SLTI:
 			intRight = right, intLeft = left;
@@ -124,10 +126,7 @@ void EX() {
 	}
 	
 	EX_DM.$rt_in = ID_EX.$rt_out;
-	if (ID_EX.reg_dst_out == 0) EX_DM.reg_to_write_in = ID_EX.rt_out;
-	else if (ID_EX.reg_dst_out == 1) EX_DM.reg_to_write_in = ID_EX.rd_out;
-	else if (ID_EX.reg_dst_out == 1) EX_DM.reg_to_write_in = 31;
-	else printf("There's an error at EX.c.\n");
+	EX_DM.reg_to_write_in = ID_EX.reg_to_write_out;
 	
 	if (EX_DM.opcode_in == HALT) EX_HALT = 1;
 	else EX_HALT = 0;

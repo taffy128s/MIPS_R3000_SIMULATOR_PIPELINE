@@ -5,6 +5,34 @@
 #include "EX.h"
 
 void ID() {
+	if (STALL) return;
+	if (ID_EX.pc_src_out) {
+		ID_EX.opcode_in = 0;
+		ID_EX.funct_in = 0;
+		ID_EX.shamt_in = 0;
+		ID_EX.rt_in = 0;
+		ID_EX.rd_in = 0;
+		ID_EX.rs_in = 0;
+		
+		ID_EX.reg_dst_in = 0;
+		ID_EX.alu_src_in = 0;
+		
+		ID_EX.mem_read_in = 0;
+		ID_EX.mem_write_in = 0;
+		ID_EX.mem_op_in = 0;
+		
+		ID_EX.reg_write_in = 0;
+		ID_EX.mem_to_reg_in = 0;
+		
+		ID_EX.$rs_in = 0;
+		ID_EX.$rt_in = 0;
+		ID_EX.extended_imme_in = 0;
+		
+		ID_EX.pc_src_in = 0;
+		ID_EX.pc_in = 0;
+		ID_EX.reg_to_write_in = 0;
+		return;
+	}
 	ID_EX.opcode_in = IF_ID.opcode_out;
 	ID_EX.funct_in = IF_ID.funct_out;
 	ID_EX.shamt_in = IF_ID.ins_reg_out << 21 >> 27;
@@ -20,6 +48,11 @@ void ID() {
 	else ID_EX.$rt_in = reg[ID_EX.rt_in];
 	short temp = IF_ID.ins_reg_out << 16 >> 16;
 	ID_EX.extended_imme_in = temp;
+	
+	if (ID_EX.reg_dst_in == 0) ID_EX.reg_to_write_in = ID_EX.rt_in;
+	else if (ID_EX.reg_dst_in == 1) ID_EX.reg_to_write_in = ID_EX.rd_in;
+	else if (ID_EX.reg_dst_in == 2) ID_EX.reg_to_write_in = 31;
+	else printf("ID_EX.reg_dst_in error.\n");
 	
 	if (ID_EX.opcode_in == BEQ) {
 		if (ID_EX.$rs_in == ID_EX.$rt_in) {
@@ -39,7 +72,7 @@ void ID() {
 		} else ID_EX.pc_src_in = 0;
 	} else if (ID_EX.opcode_in == J || ID_EX.opcode_in == JAL) {
 		ID_EX.pc_src_in = 1;
-		ID_EX.pc_in = (IF_ID.pc_plus_four_out << 28 >> 28) | (ID_EX.extended_imme_in << 6 >> 4);
+		ID_EX.pc_in = (IF_ID.pc_plus_four_out << 28 >> 28) | (ID_EX.extended_imme_in << 6 >> 4); //error
 	} else if (ID_EX.opcode_in == R && ID_EX.funct_in == JR) {
 		ID_EX.pc_src_in = 1;
 		ID_EX.pc_in = ID_EX.$rs_in;
@@ -84,27 +117,55 @@ void CONTROL() {
 }
 
 void ID_EX_READY() {
-	ID_EX.opcode_out = ID_EX.opcode_in;
-	ID_EX.funct_out = ID_EX.funct_in;
-	ID_EX.shamt_out = ID_EX.shamt_in;
-	ID_EX.rt_out = ID_EX.rt_in;
-	ID_EX.rd_out = ID_EX.rd_in;
-	ID_EX.rs_out = ID_EX.rs_in;
-	
-	ID_EX.reg_dst_out = ID_EX.reg_dst_in;
-	ID_EX.alu_src_out = ID_EX.alu_src_in;
-	
-	ID_EX.mem_read_out = ID_EX.mem_read_in;
-	ID_EX.mem_write_out = ID_EX.mem_write_in;
-	ID_EX.mem_op_out = ID_EX.mem_op_in;
-	
-	ID_EX.reg_write_out = ID_EX.reg_write_in;
-	ID_EX.mem_to_reg_out = ID_EX.mem_to_reg_in;
-	
-	ID_EX.$rs_out = ID_EX.$rs_in;
-	ID_EX.$rt_out = ID_EX.$rt_in;
-	ID_EX.extended_imme_out = ID_EX.extended_imme_in;
-	
-	ID_EX.pc_src_out = ID_EX.pc_src_in;
-	ID_EX.pc_out = ID_EX.pc_in;
+	if (STALL) {
+		ID_EX.opcode_out = 0;
+		ID_EX.funct_out = 0;
+		ID_EX.shamt_out = 0;
+		ID_EX.rt_out = 0;
+		ID_EX.rd_out = 0;
+		ID_EX.rs_out = 0;
+		
+		ID_EX.reg_dst_out = 0;
+		ID_EX.alu_src_out = 0;
+		
+		ID_EX.mem_read_out = 0;
+		ID_EX.mem_write_out = 0;
+		ID_EX.mem_op_out = 0;
+		
+		ID_EX.reg_write_out = 0;
+		ID_EX.mem_to_reg_out = 0;
+		
+		ID_EX.$rs_out = 0;
+		ID_EX.$rt_out = 0;
+		ID_EX.extended_imme_out = 0;
+		
+		ID_EX.pc_src_out = 0;
+		ID_EX.pc_out = 0;
+		ID_EX.reg_to_write_out = 0;
+	} else {
+		ID_EX.opcode_out = ID_EX.opcode_in;
+		ID_EX.funct_out = ID_EX.funct_in;
+		ID_EX.shamt_out = ID_EX.shamt_in;
+		ID_EX.rt_out = ID_EX.rt_in;
+		ID_EX.rd_out = ID_EX.rd_in;
+		ID_EX.rs_out = ID_EX.rs_in;
+		
+		ID_EX.reg_dst_out = ID_EX.reg_dst_in;
+		ID_EX.alu_src_out = ID_EX.alu_src_in;
+		
+		ID_EX.mem_read_out = ID_EX.mem_read_in;
+		ID_EX.mem_write_out = ID_EX.mem_write_in;
+		ID_EX.mem_op_out = ID_EX.mem_op_in;
+		
+		ID_EX.reg_write_out = ID_EX.reg_write_in;
+		ID_EX.mem_to_reg_out = ID_EX.mem_to_reg_in;
+		
+		ID_EX.$rs_out = ID_EX.$rs_in;
+		ID_EX.$rt_out = ID_EX.$rt_in;
+		ID_EX.extended_imme_out = ID_EX.extended_imme_in;
+		
+		ID_EX.pc_src_out = ID_EX.pc_src_in;
+		ID_EX.pc_out = ID_EX.pc_in;
+		ID_EX.reg_to_write_out = ID_EX.reg_to_write_in;
+	}
 }

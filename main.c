@@ -21,32 +21,41 @@ static pthread_barrier_t barrier_PRINT;
 
 void checkStall() {
 	STALL = 0;
-	if (ID_EX.opcode_out == R && ID_EX.funct_out != SLL && ID_EX.funct_out != SRL && ID_EX.funct_out != SRA && ID_EX.funct_out != JR) {
-		
-	} else if (ID_EX.opcode_out == R && (ID_EX.funct_out == SLL || ID_EX.funct_out == SRL || ID_EX.funct_out == SRA)) {
-		
-	} else if (ID_EX.opcode_out != R && ID_EX.opcode_out != LUI && ID_EX.opcode_out != BEQ && ID_EX.opcode_out != BNE && ID_EX.opcode_out != BGTZ
-	&& ID_EX.opcode_out != J && ID_EX.opcode_out != JAL && ID_EX.opcode_out != HALT) {
-		
-	} else if (ID_EX.opcode_out == LUI) {
-		
+	if (IF_ID.opcode_out == R && IF_ID.funct_out != SLL && IF_ID.funct_out != SRL && IF_ID.funct_out != SRA && IF_ID.funct_out != JR) {
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
+	} else if (IF_ID.opcode_out == R && (IF_ID.funct_out == SLL || IF_ID.funct_out == SRL || IF_ID.funct_out == SRA)) {
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
+	} else if (IF_ID.opcode_out != R && IF_ID.opcode_out != LUI && IF_ID.opcode_out != BEQ && IF_ID.opcode_out != BNE && IF_ID.opcode_out != BGTZ
+	&& IF_ID.opcode_out != J && IF_ID.opcode_out != JAL && IF_ID.opcode_out != HALT) {
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
+	} else if (IF_ID.opcode_out == LUI) {
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
 	}
+	
+	if (IF_ID.opcode_out == BEQ || IF_ID.opcode_out == BNE) {
+		if (ID_EX.reg_write_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+		if (ID_EX.reg_write_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rt_out)) STALL = 1;
+	} else if (IF_ID.opcode_out == BGTZ) {
+		if (ID_EX.reg_write_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+	} else if (IF_ID.opcode_out == R && IF_ID.funct_out == JR) {
+		if (ID_EX.reg_write_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rs_out)) STALL = 1;
+	}
+	
+	if (ID_EX.mem_read_out && (ID_EX.rt_out == IF_ID.rs_out || ID_EX.rt_out == IF_ID.rt_out)) STALL = 1;
 }
 
 void checkFwdToId() {
 	FWD_RS_TO_ID = 0;
 	FWD_RT_TO_ID = 0;
 	if (IF_ID.opcode_out == BEQ || IF_ID.opcode_out == BNE) {
-		if (EX_DM.reg_write_out && (EX_DM.rd_out != 0) && (EX_DM.rd_out == IF_ID.rs_out)) FWD_RS_TO_ID = 1;
-		else FWD_RS_TO_ID = 0;
-		if (EX_DM.reg_write_out && (EX_DM.rd_out != 0) && (EX_DM.rd_out == IF_ID.rt_out)) FWD_RT_TO_ID = 1;
-		else FWD_RT_TO_ID = 0;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out)) FWD_RS_TO_ID = 1;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out)) FWD_RT_TO_ID = 1;
 	} else if (IF_ID.opcode_out == BGTZ) {
-		if (EX_DM.reg_write_out && (EX_DM.rd_out != 0) && (EX_DM.rd_out == IF_ID.rs_out)) FWD_RS_TO_ID = 1;
-		else FWD_RS_TO_ID = 0;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out)) FWD_RS_TO_ID = 1;
 	} else if (IF_ID.opcode_out == R && IF_ID.funct_out == JR) {
-		if (EX_DM.reg_write_out && (EX_DM.rd_out != 0) && (EX_DM.rd_out == IF_ID.rs_out)) FWD_RS_TO_ID = 1;
-		else FWD_RS_TO_ID = 0;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out)) FWD_RS_TO_ID = 1;
 	}
 }
 
@@ -54,22 +63,16 @@ void checkFwdToEx() {
 	FWD_RS_TO_EX = 0;
 	FWD_RT_TO_EX = 0;
 	if (ID_EX.opcode_out == R && ID_EX.funct_out != SLL && ID_EX.funct_out != SRL && ID_EX.funct_out != SRA && ID_EX.funct_out != JR) {
-		if (EX_DM.reg_write_out && (EX_DM.rd_out != 0) && (EX_DM.rd_out == ID_EX.rs_out)) FWD_RS_TO_EX = 1;
-		else FWD_RS_TO_EX = 0;
-		if (EX_DM.reg_write_out && (EX_DM.rd_out != 0) && (EX_DM.rd_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
-		else FWD_RT_TO_EX = 0;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rs_out)) FWD_RS_TO_EX = 1;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
 	} else if (ID_EX.opcode_out == R && (ID_EX.funct_out == SLL || ID_EX.funct_out == SRL || ID_EX.funct_out == SRA)) {
-		if (EX_DM.reg_write_out && (EX_DM.rd_out != 0) && (EX_DM.rd_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
-		else FWD_RT_TO_EX = 0;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
 	} else if (ID_EX.opcode_out != R && ID_EX.opcode_out != LUI && ID_EX.opcode_out != BEQ && ID_EX.opcode_out != BNE && ID_EX.opcode_out != BGTZ
 	&& ID_EX.opcode_out != J && ID_EX.opcode_out != JAL && ID_EX.opcode_out != HALT) {
-		if (EX_DM.reg_write_out && (EX_DM.rd_out != 0) && (EX_DM.rd_out == ID_EX.rs_out)) FWD_RS_TO_EX = 1;
-		else FWD_RS_TO_EX = 0;
-		if (EX_DM.reg_write_out && (EX_DM.rd_out != 0) && (EX_DM.rd_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
-		else FWD_RT_TO_EX = 0;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rs_out)) FWD_RS_TO_EX = 1;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
 	} else if (ID_EX.opcode_out == LUI) {
-		if (EX_DM.reg_write_out && (EX_DM.rd_out != 0) && (EX_DM.rd_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
-		else FWD_RT_TO_EX = 0;
+		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == ID_EX.rt_out)) FWD_RT_TO_EX = 1;
 	}
 }
 
@@ -195,18 +198,27 @@ void dumpSnap() {
 	fprintf(snap, "cycle %u\n", cycle++);
 	unsigned i;
 	for (i = 0; i < 32; i++) fprintf(snap, "$%02u: 0x%08X\n", i, reg[i]);
-	fprintf(snap, "PC: 0x%08X\nIF: 0x", PC);
-	for (i = 0; i < 4; i++) fprintf(snap, "%02X", iMemory[PC + i] & 0xff);
+	if (ID_EX.pc_src_out == 1) {
+		fprintf(snap, "PC: 0x%08X\nIF: 0x", ID_EX.pc_out);
+		for (i = 0; i < 4; i++) fprintf(snap, "%02X", iMemory[ID_EX.pc_out + i] & 0xff);
+	} else {
+		fprintf(snap, "PC: 0x%08X\nIF: 0x", PC);
+		for (i = 0; i < 4; i++) fprintf(snap, "%02X", iMemory[PC + i] & 0xff);
+	}
+	if (FLUSH) fprintf(snap, " to_be_flushed");
+	if (STALL) fprintf(snap, " to_be_stalled");
 	fprintf(snap, "\n");
 	
 	fprintf(snap, "ID: ");
-	printIns(IF_ID.ins_reg_in >> 26, IF_ID.ins_reg_in << 11 >> 27, IF_ID.ins_reg_in << 16 >> 27, IF_ID.ins_reg_in << 26 >> 26, IF_ID.ins_reg_in << 21 >> 27);
+	if (ID_EX.pc_src_out) fprintf(snap, "NOP");
+	else printIns(IF_ID.ins_reg_in >> 26, IF_ID.ins_reg_in << 11 >> 27, IF_ID.ins_reg_in << 16 >> 27, IF_ID.ins_reg_in << 26 >> 26, IF_ID.ins_reg_in << 21 >> 27);
+	if (STALL) fprintf(snap, " to_be_stalled");
 	if (FWD_RS_TO_ID) fprintf(snap, " fwd_EX-DM_rs_$%u", IF_ID.rs_out);
 	if (FWD_RT_TO_ID) fprintf(snap, " fwd_EX-DM_rt_$%u", IF_ID.rt_out);
 	fprintf(snap, "\n");
-	
 	fprintf(snap, "EX: ");
 	printIns(ID_EX.opcode_out, ID_EX.rt_out, ID_EX.rd_out, ID_EX.funct_out, ID_EX.shamt_out);
+	
 	if (FWD_RS_TO_EX) fprintf(snap, " fwd_EX-DM_rs_$%u", ID_EX.rs_out);
 	if (FWD_RT_TO_EX) fprintf(snap, " fwd_EX-DM_rt_$%u", ID_EX.rt_out);
 	fprintf(snap, "\n");
@@ -447,6 +459,7 @@ void *thread2(void *input) {
 
 void *thread1(void *input) {
 	while (1) {
+		checkStall();
 		checkFwdToId();
 		checkFwdToEx();
 		dumpSnap();
@@ -460,6 +473,7 @@ void *thread1(void *input) {
 		IF_ID_READY();
 		pthread_barrier_wait(&barrier1_2);
 		/****/
+		checkStall();
 		checkFwdToId();
 		checkFwdToEx();
 		dumpSnap();
@@ -474,6 +488,7 @@ void *thread1(void *input) {
 		ID_EX_READY();
 		pthread_barrier_wait(&barrier2_2);
 		/****/
+		checkStall();
 		checkFwdToId();
 		checkFwdToEx();
 		dumpSnap();
@@ -487,6 +502,7 @@ void *thread1(void *input) {
 		EX_DM_READY();
 		pthread_barrier_wait(&barrier3_2);
 		/****/
+		checkStall();
 		checkFwdToId();
 		checkFwdToEx();
 		dumpSnap();
@@ -500,6 +516,7 @@ void *thread1(void *input) {
 		DM_WB_READY();
 		pthread_barrier_wait(&barrier4_2);
 		/****/
+		checkStall();
 		checkFwdToId();
 		checkFwdToEx();
 		dumpSnap();
