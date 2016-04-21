@@ -48,7 +48,7 @@ void DM() {
 			if (EX_DM.alu_result_out >= 1024) {
 				mem_overflow = 1;
 			}
-			if (mem_overflow || mem_misalign) return;
+			if (mem_overflow) return;
 			dMemory[EX_DM.alu_result_out] = EX_DM.write_data_out << 24 >> 24;
 		} else printf("Error at DM.c.\n");
 	}
@@ -88,12 +88,13 @@ void DM() {
 			if (EX_DM.alu_result_out >= 1024) {
 				mem_overflow = 1;
 			}
+			if (mem_overflow) return;
 			DM_WB.read_data_in = dMemory[EX_DM.alu_result_out];
 		} else if (EX_DM.mem_op_out == MEM_BYTE_UNSIGN) {
 			if (EX_DM.alu_result_out >= 1024) {
 				mem_overflow = 1;
 			}
-			if (mem_overflow || mem_misalign) return;
+			if (mem_overflow) return;
 			DM_WB.read_data_in = (unsigned char) dMemory[EX_DM.alu_result_out];
 		} else printf("Error at DM.c.\n");
 	}
