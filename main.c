@@ -22,7 +22,7 @@ static pthread_barrier_t barrier_PRINT;
 
 void checkStall() {
 	STALL = 0;
-	// EX_DM to ID (not branches) stall
+	// EX_DM to ID (not branches) stall 
 	if (IF_ID.opcode_out == R && IF_ID.funct_out != SLL && IF_ID.funct_out != SRL && IF_ID.funct_out != SRA && IF_ID.funct_out != JR) {
 		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out) && !(ID_EX.reg_write_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rs_out))) STALL = 1;
 		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out) && !(ID_EX.reg_write_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rt_out))) STALL = 1;
