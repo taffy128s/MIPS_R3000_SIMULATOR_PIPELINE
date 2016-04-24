@@ -10,11 +10,7 @@
 #include "DM.h"
 #include "WB.h"
 
-static pthread_barrier_t barrier1_1, barrier1_2;
-static pthread_barrier_t barrier2_1, barrier2_2;
-static pthread_barrier_t barrier3_1, barrier3_2;
-static pthread_barrier_t barrier4_1, barrier4_2;
-static pthread_barrier_t barrier5_1, barrier5_2;
+static pthread_barrier_t barrier1, barrier2;
 static pthread_barrier_t barrier_ID_WB;
 static pthread_barrier_t barrier_RETURN;
 static pthread_barrier_t barrier_CHECK;
@@ -256,9 +252,9 @@ void dumpSnap2() {
 		if (FWD_RT_TO_ID) fprintf(snap, " fwd_EX-DM_rt_$%u", IF_ID.rt_out);
 	}
 	fprintf(snap, "\n");
+	
 	fprintf(snap, "EX: ");
 	printIns(ID_EX.opcode_out, ID_EX.rt_out, ID_EX.rd_out, ID_EX.funct_out, ID_EX.shamt_out);
-	
 	if (FWD_RS_TO_EX) fprintf(snap, " fwd_EX-DM_rs_$%u", ID_EX.rs_out);
 	if (FWD_RT_TO_EX) fprintf(snap, " fwd_EX-DM_rt_$%u", ID_EX.rt_out);
 	fprintf(snap, "\n");
@@ -302,58 +298,13 @@ void *thread5(void *input) {
 		pthread_barrier_wait(&barrier_CHECK);
 		WB();
 		pthread_barrier_wait(&barrier_ID_WB);
-		pthread_barrier_wait(&barrier1_1);
+		pthread_barrier_wait(&barrier1);
 		pthread_barrier_wait(&barrier_PRINT);
 		if (detectHalt()) {
 			pthread_barrier_wait(&barrier_RETURN);
 			pthread_exit(NULL);
 		}
-		pthread_barrier_wait(&barrier1_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		IF();
-		pthread_barrier_wait(&barrier2_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		IF_ID_READY();
-		pthread_barrier_wait(&barrier2_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		pthread_barrier_wait(&barrier_ID_WB);
-		ID();
-		pthread_barrier_wait(&barrier3_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		ID_EX_READY();
-		pthread_barrier_wait(&barrier3_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		EX();
-		pthread_barrier_wait(&barrier4_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		EX_DM_READY();
-		pthread_barrier_wait(&barrier4_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		DM();
-		pthread_barrier_wait(&barrier5_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		DM_WB_READY();
-		pthread_barrier_wait(&barrier5_2);
+		pthread_barrier_wait(&barrier2);
 	}
 }
 
@@ -361,59 +312,14 @@ void *thread4(void *input) {
 	while (1) {
 		pthread_barrier_wait(&barrier_CHECK);
 		DM();
-		pthread_barrier_wait(&barrier1_1);
+		pthread_barrier_wait(&barrier1);
 		pthread_barrier_wait(&barrier_PRINT);
 		if (detectHalt()) {
 			pthread_barrier_wait(&barrier_RETURN);
 			pthread_exit(NULL);
 		}
 		DM_WB_READY();
-		pthread_barrier_wait(&barrier1_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		WB();
-		pthread_barrier_wait(&barrier_ID_WB);
-		pthread_barrier_wait(&barrier2_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		pthread_barrier_wait(&barrier2_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		IF();
-		pthread_barrier_wait(&barrier3_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		IF_ID_READY();
-		pthread_barrier_wait(&barrier3_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		pthread_barrier_wait(&barrier_ID_WB);
-		ID();
-		pthread_barrier_wait(&barrier4_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		ID_EX_READY();
-		pthread_barrier_wait(&barrier4_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		EX();
-		pthread_barrier_wait(&barrier5_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		EX_DM_READY();
-		pthread_barrier_wait(&barrier5_2);
+		pthread_barrier_wait(&barrier2);
 	}
 }
 
@@ -421,59 +327,14 @@ void *thread3(void *input) {
 	while (1) {
 		pthread_barrier_wait(&barrier_CHECK);
 		EX();
-		pthread_barrier_wait(&barrier1_1);
+		pthread_barrier_wait(&barrier1);
 		pthread_barrier_wait(&barrier_PRINT);
 		if (detectHalt()) {
 			pthread_barrier_wait(&barrier_RETURN);
 			pthread_exit(NULL);
 		}
 		EX_DM_READY();
-		pthread_barrier_wait(&barrier1_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		DM();
-		pthread_barrier_wait(&barrier2_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		DM_WB_READY();
-		pthread_barrier_wait(&barrier2_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		WB();
-		pthread_barrier_wait(&barrier_ID_WB);
-		pthread_barrier_wait(&barrier3_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		pthread_barrier_wait(&barrier3_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		IF();
-		pthread_barrier_wait(&barrier4_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		IF_ID_READY();
-		pthread_barrier_wait(&barrier4_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		pthread_barrier_wait(&barrier_ID_WB);
-		ID();
-		pthread_barrier_wait(&barrier5_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		ID_EX_READY();
-		pthread_barrier_wait(&barrier5_2);
+		pthread_barrier_wait(&barrier2);
 	}
 }
 
@@ -482,58 +343,14 @@ void *thread2(void *input) {
 		pthread_barrier_wait(&barrier_CHECK);
 		pthread_barrier_wait(&barrier_ID_WB);
 		ID();
-		pthread_barrier_wait(&barrier1_1);
+		pthread_barrier_wait(&barrier1);
 		pthread_barrier_wait(&barrier_PRINT);
 		if (detectHalt()) {
 			pthread_barrier_wait(&barrier_RETURN);
 			pthread_exit(NULL);
 		}
 		ID_EX_READY();
-		pthread_barrier_wait(&barrier1_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		EX();
-		pthread_barrier_wait(&barrier2_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		EX_DM_READY();
-		pthread_barrier_wait(&barrier2_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		DM();
-		pthread_barrier_wait(&barrier3_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		DM_WB_READY();
-		pthread_barrier_wait(&barrier3_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		WB();
-		pthread_barrier_wait(&barrier_ID_WB);
-		pthread_barrier_wait(&barrier4_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		pthread_barrier_wait(&barrier4_2);
-		/****/
-		pthread_barrier_wait(&barrier_CHECK);
-		IF();
-		pthread_barrier_wait(&barrier5_1);
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		IF_ID_READY();
-		pthread_barrier_wait(&barrier5_2);
+		pthread_barrier_wait(&barrier2);
 	}
 }
 
@@ -545,7 +362,7 @@ void *thread1(void *input) {
 		dumpSnap();
 		pthread_barrier_wait(&barrier_CHECK);
 		IF();
-		pthread_barrier_wait(&barrier1_1);
+		pthread_barrier_wait(&barrier1);
 		dumpSnap2();
 		printError();
 		pthread_barrier_wait(&barrier_PRINT);
@@ -554,76 +371,7 @@ void *thread1(void *input) {
 			pthread_exit(NULL);
 		}
 		IF_ID_READY();
-		pthread_barrier_wait(&barrier1_2);
-		/****/
-		checkFwdToId();
-		checkFwdToEx();
-		checkStall();
-		dumpSnap();
-		pthread_barrier_wait(&barrier_CHECK);
-		pthread_barrier_wait(&barrier_ID_WB);
-		ID();
-		pthread_barrier_wait(&barrier2_1);
-		dumpSnap2();
-		printError();
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		ID_EX_READY();
-		pthread_barrier_wait(&barrier2_2);
-		/****/
-		checkFwdToId();
-		checkFwdToEx();
-		checkStall();
-		dumpSnap();
-		pthread_barrier_wait(&barrier_CHECK);
-		EX();
-		pthread_barrier_wait(&barrier3_1);
-		dumpSnap2();
-		printError();
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		EX_DM_READY();
-		pthread_barrier_wait(&barrier3_2);
-		/****/
-		checkFwdToId();
-		checkFwdToEx();
-		checkStall();
-		dumpSnap();
-		pthread_barrier_wait(&barrier_CHECK);
-		DM();
-		pthread_barrier_wait(&barrier4_1);
-		dumpSnap2();
-		printError();
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		DM_WB_READY();
-		pthread_barrier_wait(&barrier4_2);
-		/****/
-		checkFwdToId();
-		checkFwdToEx();
-		checkStall();
-		dumpSnap();
-		pthread_barrier_wait(&barrier_CHECK);
-		WB();
-		pthread_barrier_wait(&barrier_ID_WB);
-		pthread_barrier_wait(&barrier5_1);
-		dumpSnap2();
-		printError();
-		pthread_barrier_wait(&barrier_PRINT);
-		if (detectHalt()) {
-			pthread_barrier_wait(&barrier_RETURN);
-			pthread_exit(NULL);
-		}
-		pthread_barrier_wait(&barrier5_2);
+		pthread_barrier_wait(&barrier2);
 	}
 }
 
@@ -632,16 +380,8 @@ int main() {
 	dealWithDImg();
 	dealWithIImg();
 	// TODO: pipeline
-	pthread_barrier_init(&barrier1_1, NULL, 5);
-	pthread_barrier_init(&barrier1_2, NULL, 5);
-	pthread_barrier_init(&barrier2_1, NULL, 5);
-	pthread_barrier_init(&barrier2_2, NULL, 5);
-	pthread_barrier_init(&barrier3_1, NULL, 5);
-	pthread_barrier_init(&barrier3_2, NULL, 5);
-	pthread_barrier_init(&barrier4_1, NULL, 5);
-	pthread_barrier_init(&barrier4_2, NULL, 5);
-	pthread_barrier_init(&barrier5_1, NULL, 5);
-	pthread_barrier_init(&barrier5_2, NULL, 5);
+	pthread_barrier_init(&barrier1, NULL, 5);
+	pthread_barrier_init(&barrier2, NULL, 5);
 	pthread_barrier_init(&barrier_CHECK, NULL, 5);
 	pthread_barrier_init(&barrier_PRINT, NULL, 5);
 	pthread_barrier_init(&barrier_ID_WB, NULL, 2);
