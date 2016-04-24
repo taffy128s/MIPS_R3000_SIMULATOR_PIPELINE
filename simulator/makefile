@@ -1,4 +1,4 @@
-CC = gcc -Wall
+CC = gcc -Wall -O3
 SRCS = ./*.c
 OBJS = ./*.o
 

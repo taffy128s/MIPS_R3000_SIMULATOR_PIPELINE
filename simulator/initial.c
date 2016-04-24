@@ -38,7 +38,7 @@ void openNLoadFiles() {
 }
 
 void dealWithDImg() {
-    unsigned i, temp, idx = 0;
+    unsigned i, temp = 0, idx = 0;
     // Get the value of $sp.
     for (i = 0; i < 4; i++)
         temp = (temp << 8) + (unsigned char) dImgBuffer[i];
@@ -53,7 +53,7 @@ void dealWithDImg() {
 }
 
 void dealWithIImg() {
-    unsigned i, temp, idx;
+    unsigned i, temp = 0, idx;
     // Get the value of PC.
     for (i = 0; i < 4; i++)
         temp = (temp << 8) + (unsigned char) iImgBuffer[i];
