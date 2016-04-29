@@ -19,7 +19,7 @@ static pthread_barrier_t barrier_PRINT;
 void checkStall() {
 	STALL = 0;
 	if (ID_EX.pc_src_out == 1) return;
-	// EX_DM to ID (not branches) stall 
+	// EX_DM to ID (not branches) stall
 	if (IF_ID.opcode_out == R && IF_ID.funct_out != SLL && IF_ID.funct_out != SRL && IF_ID.funct_out != SRA && IF_ID.funct_out != JR) {
 		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rs_out) && !(ID_EX.reg_write_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rs_out))) STALL = 1;
 		if (EX_DM.reg_write_out && (EX_DM.reg_to_write_out != 0) && (EX_DM.reg_to_write_out == IF_ID.rt_out) && !(ID_EX.reg_write_out && (ID_EX.reg_to_write_out != 0) && (ID_EX.reg_to_write_out == IF_ID.rt_out))) STALL = 1;
@@ -241,28 +241,28 @@ void dumpSnap2() {
 	if (STALL) fprintf(snap, " to_be_stalled");
 	else if (ID_EX.pc_src_in == 1) fprintf(snap, " to_be_flushed");
 	fprintf(snap, "\n");
-	
+
 	fprintf(snap, "ID: ");
 	if (ID_EX.pc_src_out) fprintf(snap, "NOP");
 	else printIns(IF_ID.ins_reg_out >> 26, IF_ID.ins_reg_out << 11 >> 27, IF_ID.ins_reg_out << 16 >> 27, IF_ID.ins_reg_out << 26 >> 26, IF_ID.ins_reg_out << 21 >> 27);
 	if (STALL) {
 		fprintf(snap, " to_be_stalled");
 	} else {
-		if (FWD_RS_TO_ID) fprintf(snap, " fwd_EX-DM_rs_$%u", IF_ID.rs_out);
-		if (FWD_RT_TO_ID) fprintf(snap, " fwd_EX-DM_rt_$%u", IF_ID.rt_out);
+		if (!ID_EX.pc_src_out && FWD_RS_TO_ID) fprintf(snap, " fwd_EX-DM_rs_$%u", IF_ID.rs_out);
+		if (!ID_EX.pc_src_out && FWD_RT_TO_ID) fprintf(snap, " fwd_EX-DM_rt_$%u", IF_ID.rt_out);
 	}
 	fprintf(snap, "\n");
-	
+
 	fprintf(snap, "EX: ");
 	printIns(ID_EX.opcode_out, ID_EX.rt_out, ID_EX.rd_out, ID_EX.funct_out, ID_EX.shamt_out);
 	if (FWD_RS_TO_EX) fprintf(snap, " fwd_EX-DM_rs_$%u", ID_EX.rs_out);
 	if (FWD_RT_TO_EX) fprintf(snap, " fwd_EX-DM_rt_$%u", ID_EX.rt_out);
 	fprintf(snap, "\n");
-	
+
 	fprintf(snap, "DM: ");
 	printIns(EX_DM.opcode_out, EX_DM.rt_out, EX_DM.rd_out, EX_DM.funct_out, EX_DM.shamt_out);
 	fprintf(snap, "\n");
-	
+
 	fprintf(snap, "WB: ");
 	printIns(DM_WB.opcode_out, DM_WB.rt_out, DM_WB.rd_out, DM_WB.funct_out, DM_WB.shamt_out);
 	fprintf(snap, "\n\n\n");
@@ -273,15 +273,15 @@ void printError() {
 		write_to_zero = 0;
 		fprintf(err, "In cycle %d: Write $0 Error\n", cycle);
 	}
-	
+
 	if (mem_overflow) {
 		fprintf(err, "In cycle %d: Address Overflow\n", cycle);
 	}
-	
+
 	if (mem_misalign) {
 		fprintf(err, "In cycle %d: Misalignment Error\n", cycle);
 	}
-	
+
 	if (num_overflow) {
 		num_overflow = 0;
 		fprintf(err, "In cycle %d: Number Overflow\n", cycle);
@@ -386,15 +386,15 @@ int main() {
 	pthread_barrier_init(&barrier_PRINT, NULL, 5);
 	pthread_barrier_init(&barrier_ID_WB, NULL, 2);
 	pthread_barrier_init(&barrier_RETURN, NULL, 6);
-	
+
 	pthread_t t1, t2, t3, t4, t5;
 	pthread_create(&t1, NULL, thread1, NULL);
 	pthread_create(&t2, NULL, thread2, NULL);
 	pthread_create(&t3, NULL, thread3, NULL);
 	pthread_create(&t4, NULL, thread4, NULL);
 	pthread_create(&t5, NULL, thread5, NULL);
-	
+
 	pthread_barrier_wait(&barrier_RETURN);
-	
+
 	return 0;
 }
